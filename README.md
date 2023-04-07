@@ -12,7 +12,7 @@ YOU WILL HAVE TO CHANGE THE PATH TO YOUR LIB LOCATION
 
 ## How to use
 
-```sh
+
 # Download/Clone this repository
 git clone https://github.com/wfox4/WebChatRWKVv2.git
 
@@ -24,7 +24,7 @@ https://huggingface.co/Hazzzardous/rwkv-fastquant/blob/main/ravenV7-14B-2-1-2.rw
 # Be sure to check the logs and see if you are missing any packages and if you are you can throw them inside the .bat to install.
 Let me know whats missing as well and I'll update the bat for the next person.
 
-```
+
 
 The script will automatically download a suitable RWKV model into the `models`
 folder. If you already have a model, Use the `models` directory and
