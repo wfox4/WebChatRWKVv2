@@ -11,6 +11,17 @@ from rwkvstic.load import RWKV
 
 stop_event = Event()
 
+temp = 0.7
+top_p_usual = 0.5
+
+def set_temp(new_temp):
+    global temp
+    temp = new_temp
+
+def set_top_p_usual(new_top_p_usual):
+    global top_p_usual
+    top_p_usual = new_top_p_usual
+
 
 def no_tqdm():
     from functools import partialmethod
@@ -261,8 +272,8 @@ def inferthread():
             model.loadContext(newctx=task.context)
             res = model.forward(
                 number=4096,
-                temp=1,
-                top_p_usual=0.5,
+                temp=temp,
+                top_p_usual=top_p_usual,
                 end_adj=-2,
                 progressLambda=task.progress_callback,
                 **task.forward_kwargs,
@@ -310,7 +321,7 @@ def infer(*, context: str, state=None, on_progress=None, on_done=None, forward_k
 
 
 print("Loading context")
-chat_initial_context = open("prompt.txt").read().strip()
+chat_initial_context = open("prompt.txt", encoding="utf-8").read().strip()
 model.loadContext(
     newctx=chat_initial_context,
     progressCallBack=lambda p: print(model.tokenizer.decode(p[-1]), end=""),
@@ -400,6 +411,7 @@ Output: """
             ]
         },
     )
+
 
 
 if __name__ == "__main__":
