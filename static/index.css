@@ -7,76 +7,140 @@ body {
   font-family: sans-serif;
 }
 
+.message {
+  background-color: #f2f7f7;
+  color: #031f00;
+  cursor: pointer;
+  border-radius: 1em;
+  padding: .5em;
+  font-family: sans-serif;
+  margin-bottom: 0.5em; /* Added space between messages */
+}
+
+.wrapper {
+  display: flex;
+  height: 100%;
+}
+
 .container {
-  max-width: 640px;
-  margin: 0 auto;
+  background-color: #333;
   display: flex;
   flex-direction: column;
-  height: 100%;
-  padding: 1em;
-  box-sizing: border-box;
+  height: 100vh;
+  min-width: 640px;
+  margin: 0 auto;
+  border-radius: 1em; /* Added rounded border */
+  overflow: hidden; /* Added to clip the inner content by the rounded border */
 }
 
-.messagecontent > p {
-  white-space: pre-line;
-}
 
 .history {
-  flex: 1;
-  overflow-y: scroll;
+  flex-grow: 1;
+  overflow-y: auto;
   padding-bottom: 5rem;
+  overflow-wrap: break-word;
+  padding: 1em; /* Added padding */
 }
 
 .history::-webkit-scrollbar {
-  width: 5px;
-  background-color: #333;
+  width: 10px; /* Adjust the width of the scrollbar */
+}
+
+.history::-webkit-scrollbar-track {
+  background-color: #444; /* Background color of the scrollbar track */
 }
 
 .history::-webkit-scrollbar-thumb {
-  background: #555;
+  background-color: #777; /* Color of the scrollbar thumb */
+  border-radius: 5px; /* Optional: Add border-radius to the scrollbar thumb */
 }
 
-.history h4 {
-  margin-bottom: 0;
-}
-.history p {
-  margin-top: 0;
-  word-wrap: break-word;
-}
-.history a:link,
-.history a:visited {
-  color: #91bbfd;
-}
-.history li::marker {
-  color: #aaa;
+.history::-webkit-scrollbar-thumb:hover {
+  background-color: #555; /* Color of the scrollbar thumb when hovered */
 }
 
-.chatbar {
-  width: 100%;
-  display: flex;
-}
 
-#chatbox {
-  flex: 1;
+.conversation-logs {
   background-color: #333;
-  border: 0;
+  padding: 1em;
+  border-radius: 0 1em 1em 0;
+  min-width: 200px;
+  max-width: calc(100% - 200px);
+  flex-shrink: 0;
+}
+
+#contextwindow {
+  flex-direction: row;
+  justify-content: space-between;
+  background-color: #333;
+  border: 1;
+  border-radius: 1em 0 0 1em;
   font-size: 1rem;
   padding: 0.8em;
   color: #fff;
+  outline: none;
+}
+
+#contextbox {
+  background-color: #c4c4c4;
+  border: 1;
+  height: 10em;
+  border-radius: 1em 1em 1em 0;
+  font-size: 1rem;
+  padding: 0.8em;
   outline: none;
   font-family: sans-serif;
   resize: none;
 }
 
-.btn {
-  background-color: #333;
+#chatform {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}
+
+#chatbox {
+  flex: 3;
+  background-color: #c4c4c4;
+  border: 1;
+  font-size: 1rem;
+  padding: 0.8em;
+  color: #031f00;
+  outline: none;
+  font-family: sans-serif;
+  resize: none;
+}
+
+.buttons-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+#stopButton {
+  flex: 2;
+  background-color: #c47f29;
   color: #fff;
   border: 0;
   cursor: pointer;
   outline: none;
-  padding: 0 1em;
 }
+
+.btn {
+  flex: 2;
+  background-color: #5e39bd;
+  color: #fff;
+  border: 0;
+  cursor: pointer;
+  outline: none;
+}
+
 .btn:hover,
 .btn:focus {
-  background-color: #444;
+  background-color: #3974bd;
+}
+
+#stopButton:hover,
+#stopButton:focus {
+  background-color: #bd2839;
 }
