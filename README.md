@@ -1,4 +1,4 @@
-# WebChatRWKVstic
+# WebChatRWKVv2
 
 ![screenshot](https://github.com/wfox4/WebChatRWKVv2/blob/main/.github/images/screenshot4.png)
 
