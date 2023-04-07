@@ -1,6 +1,6 @@
 # WebChatRWKVstic
 
-![screenshot](https://raw.githubusercontent.com/hizkifw/WebChatRWKVstic/main/.github/images/screenshot.png)
+![screenshot](https://raw.githubusercontent.com/wfox4/WebChatRWKVv2/main/.github/images/screenshot2.png)
 
 [RWKV-V4](https://github.com/BlinkDL/RWKV-LM) inference via
 [rwkvstic](https://github.com/harrisonvanderbyl/rwkvstic), with a ChatGPT-like
