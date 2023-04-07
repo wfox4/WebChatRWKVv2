@@ -24,7 +24,7 @@ from fastapi.staticfiles import StaticFiles
 import json
 
 import model
-from model import stop_model
+from model import set_temp, set_top_p_usual, stop_model
 
 app = FastAPI()
 
@@ -67,14 +67,18 @@ async def websocket_endpoint(websocket: WebSocket):
     while True:
         data = await websocket.receive_text()
         print("Received data:", data)
-        # process data as required for your application
 
-        # Add this block to handle stop model request
-        message = json.loads(data)
+        message = json.loads(data)  # Define and parse the message variable
+
+        if "temp" in message:
+            set_temp(message["temp"])
+
+        if "top_p_usual" in message:
+            set_top_p_usual(message["top_p_usual"])
+
         if message.get("action") == "stop_model":
             stop_model()
             await websocket.send_text("Model stopped")
-        # End of added block
 
         method, params, id = (
             message.get("method", None),
@@ -93,9 +97,6 @@ async def websocket_endpoint(websocket: WebSocket):
             if text is None:
                 await reply(id, error="text is required")
 
-
-            
-
             await loop.run_in_executor(
                 None,
                 model.chat,
@@ -107,11 +108,10 @@ async def websocket_endpoint(websocket: WebSocket):
         else:
             await reply(id, error=f"invalid method '{method}'")
 
-
-
 app.mount("/", StaticFiles(directory="static", html=True), name="static")
 
 if __name__ == "__main__":
     import uvicorn
 
     uvicorn.run(app)
+
