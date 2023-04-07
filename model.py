@@ -1,12 +1,15 @@
 import queue
 import threading
+from threading import Event
 import traceback
 from dataclasses import dataclass, field
 from typing import Any, Callable
-
+import currentcontext
 import torch
 from rwkvstic.agnostic.backends import TORCH
 from rwkvstic.load import RWKV
+
+stop_event = Event()
 
 
 def no_tqdm():
@@ -109,6 +112,9 @@ def download(url, filename, sha256=None):
 
     return path
 
+def stop_model():
+    stop_event.set()
+
 
 def get_checkpoint():
     import psutil
@@ -142,8 +148,8 @@ For more information, see: https://pytorch.org/get-started/locally/
     if not path.exists(models_dir):
         os.makedirs(models_dir)
 
-    # Check if there are any models in the models/ folder
-    models = glob(path.join(models_dir, "*.pth"))
+# Check if there are any models in the models/ folder
+    models = glob(path.join(models_dir, "*.pth")) + glob(path.join(models_dir, "*.rwkv"))
 
     if len(models) == 0:
         print("No *.pth models found in the `models` folder, downloading...")
@@ -160,13 +166,63 @@ For more information, see: https://pytorch.org/get-started/locally/
                 )
                 break
 
-        models = glob(path.join(models_dir, "*.pth"))
+    models = glob(path.join(models_dir, "*.pth")) + glob(path.join(models_dir, "*.rwkv"))
+    if len(models) == 0:
+        raise Exception("Could not find a suitable model to download.")
+
+# Find a valid model file
+    valid_model = None
+    for model_file in models:
+        if os.path.exists(model_file):
+            valid_model = model_file
+            break
+
+    if valid_model is None:
+        raise Exception("No valid model found in the 'models' folder.")
+
+    # TODO: get model name from command line args / config file
+    print("-> Using model", valid_model)
+    return valid_model
+    models_dir = "models"
+    if not path.exists(models_dir):
+        os.makedirs(models_dir)
+
+    # Check if there are any models in the models/ folder
+    models = glob(path.join(models_dir, "*.pth")) + glob(path.join(models_dir, "*.rwkv"))
+
+    if len(models) == 0:
+        print("No *.pth models found in the `models` folder, downloading...")
+        print(" -> RAM:", ram_total)
+        print(" -> VRAM:", vram_total)
+        memtarget = vram_total if has_cuda else ram_total
+        for m in online_models:
+            if m.vram_gb * 1024 * 1024 * 1024 <= memtarget:
+                print("Downloading model", m.name)
+                download(
+                    m.url,
+                    path.join(models_dir, m.name + ".pth"),
+                    sha256=m.sha256,
+                )
+                break
+
+        models = glob(path.join(models_dir, "*.pth")) + glob(path.join(models_dir, "*.rwkv"))
         if len(models) == 0:
             raise Exception("Could not find a suitable model to download.")
 
+    # Find a valid model file
+    valid_model = None
+    for model_file in models:
+        if os.path.exists(model_file):
+            valid_model = model_file
+            break
+
+    if valid_model is None:
+        raise Exception("No valid model found in the 'models' folder.")
+
     # TODO: get model name from command line args / config file
-    print("-> Using model", models[0])
-    return models[0]
+    print("-> Using model", valid_model)
+    return valid_model
+
 
 
 # Load the model (supports full path, relative path, and remote paths)
@@ -204,9 +260,9 @@ def inferthread():
             model.setState(task.state)
             model.loadContext(newctx=task.context)
             res = model.forward(
-                number=512,
+                number=4096,
                 temp=1,
-                top_p_usual=0.7,
+                top_p_usual=0.5,
                 end_adj=-2,
                 progressLambda=task.progress_callback,
                 **task.forward_kwargs,
@@ -219,19 +275,12 @@ def inferthread():
             task.progress_callback(None)
 
 
-def infer(
-    *,
-    context: str,
-    state=None,
-    on_progress=None,
-    on_done=None,
-    forward_kwargs={},
-):
+def infer(*, context: str, state=None, on_progress=None, on_done=None, forward_kwargs={}):
     ev = threading.Event()
 
     # args['logits', 'state', 'output', 'progress', 'tokens', 'total', 'current']
     def _progress_callback(args):
-        if on_progress is None:
+        if on_progress is None or stop_event.is_set():
             return
 
         if args is None:
@@ -245,7 +294,7 @@ def infer(
 
     def _done_callback(result):
         ev.set()
-        if on_done is None:
+        if on_done is None or stop_event.is_set():
             return
         on_done(result)
 
@@ -275,14 +324,16 @@ t.start()
 
 
 def chat(state, input: str, on_progress, on_done):
-    # Format the input to be a Q & A
+    stop_event.clear()
+    # Format the input to include context and user input
     input = f"""
-Question:
-{input}
+Instruction: {input}
 
-Full Answer in Markdown:
-"""
+Input: {currentcontext.userscontext}
 
+Output: """
+
+    print("Formatted input:", input)
     # Set empty state if not provided
     if state is None:
         state = chat_initial_state
