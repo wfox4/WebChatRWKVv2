@@ -37,3 +37,4 @@ place your `.pth` or `.rwkv` files there.
 - Tune the model to better match ChatGPT
 - Clean up the code
 - Fix the logs and make a chat mode that will change the formatted input into the model.
+- Add a new chat button and load the previous conversations into the log.
