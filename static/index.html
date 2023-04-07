@@ -5,6 +5,20 @@
     <link rel="stylesheet" href="/index.css" />
     <script src="/index.js"></script>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <style>
+        .tooltip {
+            display: none;
+            position: absolute;
+            background-color: #f9f9f9;
+            border: 1px solid #ccc;
+            padding: 8px;
+            border-radius: 4px;
+            font-size: 14px;
+			color: #000;
+			width: 300px; /* Add this line to set a fixed width of 300 pixels */
+			white-space: normal; /* Add this line to allow line wrapping */
+        }
+    </style>  
   </head>
 
 <body>
@@ -34,9 +48,71 @@
           autocomplete="off"
           placeholder="This is the context window..."
         ></textarea>
+<div>
+    <label for="temp" id="tempLabel">Temperature:</label>
+    <input type="range" min="0" max="100" value="70" id="temp" step="1" oninput="updateTemp(value);">
+    <div class="tooltip" id="tempTooltip">temp (Temperature): The temperature is a hyperparameter that controls the randomness of the output text during the sampling process. A high temperature (e.g., 1 or above) results in more diverse and creative outputs, but can also lead to less coherent text. A low temperature (e.g., close to 0) makes the model output more focused and deterministic, selecting the most likely tokens, but can sometimes result in repetitive text. A common value for temp is around 0.7 to 1.0, which provides a balance between creativity and coherence.</div>
+    <span id="tempValue">0.7</span>
+</div>
+<div>
+    <label for="top_p" id="topPLabel">Top-P:</label>
+    <input type="range" min="0" max="100" value="50" id="top_p" step="1" oninput="updateTopP(value);">
+    <div class="tooltip" id="top_pTooltip">top_p (Top-P or Nucleus Sampling): Top-P sampling is a strategy that samples from the top p% most probable tokens in the distribution. It helps in controlling the randomness of the generated text while still allowing for some degree of creativity. A smaller value of top_p (e.g., 0.5) will result in more focused and coherent text, while a larger value (e.g., 0.9) will provide more diverse and creative output but may result in less coherence.</div>
+    <span id="topPValue">0.5</span>
+</div>
+    <script>
+        function updateTemp(value) {
+            let tempValue = document.getElementById("tempValue");
+            tempValue.innerHTML = (value / 100).toFixed(2);
+        }
+
+        function updateTopP(value) {
+            let topPValue = document.getElementById("topPValue");
+            topPValue.innerHTML = (value / 100).toFixed(2);
+        }
+
+        function sendData() {
+            let temp = document.getElementById("temp").value / 100;
+            let top_p = document.getElementById("top_p").value / 100;
+            let data = {
+                temp: temp,
+                top_p_usual: top_p_usual
+            };
+
+            // Assuming your WebSocket object is called 'socket'
+            socket.send(JSON.stringify(data));
+        }
+        const tempLabel = document.getElementById("tempLabel");
+        const tempTooltip = document.getElementById("tempTooltip");
+
+        tempLabel.addEventListener("mouseover", (event) => {
+            tempTooltip.style.display = "block";
+            tempTooltip.style.left = (event.pageX - tempTooltip.clientWidth - 10) + "px";
+            tempTooltip.style.top = (event.pageY - tempTooltip.clientHeight / 2) + "px";
+        });
+
+        tempLabel.addEventListener("mouseout", () => {
+            tempTooltip.style.display = "none";
+        });
+        const topPLabel = document.getElementById("topPLabel");
+        const top_pTooltip = document.getElementById("top_pTooltip");
+
+        topPLabel.addEventListener("mouseover", (event) => {
+            top_pTooltip.style.display = "block";
+            top_pTooltip.style.left = (event.pageX - top_pTooltip.clientWidth - 10) + "px";
+            top_pTooltip.style.top = (event.pageY - top_pTooltip.clientHeight / 2) + "px";
+        });
+
+        topPLabel.addEventListener("mouseout", () => {
+            top_pTooltip.style.display = "none";
+        });
+    </script>
     </form>
   </div>
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/11.2.0/styles/default.min.css">
+<script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/11.2.0/highlight.min.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
 </body>
 
 </html>
