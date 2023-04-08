@@ -123,6 +123,10 @@ def download(url, filename, sha256=None):
 
     return path
 
+def clear_stop_event():
+    stop_event.clear()
+
+
 def stop_model():
     stop_event.set()
 
@@ -266,7 +270,7 @@ def inferthread():
         try:
             # Get task
             task = inferqueue.get()
-
+            model.resetState()
             # Perform inference
             model.setState(task.state)
             model.loadContext(newctx=task.context)
@@ -333,8 +337,11 @@ print("Chat context loaded")
 t = threading.Thread(target=inferthread, daemon=True)
 t.start()
 
+def get_initial_state():
+    return model.getState()
 
 def chat(state, input: str, on_progress, on_done):
+    model.resetState()
     stop_event.clear()
     # Format the input to include context and user input
     input = f"""
@@ -346,8 +353,7 @@ Output: """
 
     print("Formatted input:", input)
     # Set empty state if not provided
-    if state is None:
-        state = chat_initial_state
+    state = get_initial_state()
 
     ctx = {"buf": "", "buf_state": None}
     stop_sequences = ["\nQuestion:", "\n---"]
