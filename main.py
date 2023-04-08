@@ -22,13 +22,21 @@ import currentcontext
 from fastapi import FastAPI, WebSocket
 from fastapi.staticfiles import StaticFiles
 import json
-
+import os
 import model
 from model import set_temp, set_top_p_usual, stop_model
 
 app = FastAPI()
 
 app.mount("/static", StaticFiles(directory="static"), name="static")
+
+
+def save_log(filename, content):
+    with open(os.path.join('logs', filename), 'a') as file:
+        file.write(content)
+
+if not os.path.exists('logs'):
+    os.makedirs('logs')
 
 
 @app.websocket("/ws")
@@ -42,7 +50,7 @@ async def websocket_endpoint(websocket: WebSocket):
         assert either, "Either result or error must be set!"
 
         if result is not None:
-            await websocket.send_json({"jsonrpc": "2.0", "result": result, "id": id})
+            await websocket.send_json({"jsonrpc": "2.0", "result": result, "id": id})        
         elif error is not None:
             await websocket.send_json({"jsonrpc": "2.0", "error": error, "id": id})
 
@@ -62,6 +70,7 @@ async def websocket_endpoint(websocket: WebSocket):
 
             session["state"] = result["state"]
 
+
         return callback
 
     while True:
@@ -79,6 +88,7 @@ async def websocket_endpoint(websocket: WebSocket):
         if message.get("action") == "stop_model":
             stop_model()
             await websocket.send_text("Model stopped")
+            model.clear_stop_event()
 
         method, params, id = (
             message.get("method", None),
@@ -97,16 +107,32 @@ async def websocket_endpoint(websocket: WebSocket):
             if text is None:
                 await reply(id, error="text is required")
 
+            save_log('conversation_log.txt', f'User: {text}\n')
+
+            result = {}
+
             await loop.run_in_executor(
                 None,
                 model.chat,
                 session["state"],
                 text,
                 on_progress(id, loop),
-                on_done(text),
+                lambda res: on_done(text)(res),
             )
+    
+    # Check if the result dictionary contains the expected key
+            if "output" in result:
+                output = result["output"]
+            else:
+                # Use a default value if the key is not present
+                output = "Sorry, I didn't understand that."
+
+    # Save the model's response
+            save_log('conversation_log.txt', f'Model: {output}\n')
+    
         else:
             await reply(id, error=f"invalid method '{method}'")
+
 
 app.mount("/", StaticFiles(directory="static", html=True), name="static")
 
