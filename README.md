@@ -19,22 +19,23 @@ git clone https://github.com/wfox4/WebChatRWKVv2.git
 # Download this model and throw it inside of the models folder. 
 https://huggingface.co/Hazzzardous/rwkv-fastquant/blob/main/ravenV7-14B-2-1-2.rwkv
 
-# Run the .bat file from the file location. MAKE SURE you have the model inside the folder first. If you don't it will try to download a model.
+# Run the install_and_run.bat file from the file location. MAKE SURE you have the model inside the folder first.
 
-# Be sure to check the logs and see if you are missing any packages and if you are you can throw them inside the .bat to install.
+# Once installed close the console, grab the RKWVmaster from the Custom folder and place it INSIDE of your chatbot_env_new/Lib/site-packages/rwkvsticv folder and overwrite it!
+
+# Then run the RUN.bat and you should be able to stop the model mid generation if it starts getting crazy.
+
+# Be sure to check the logs and see if you are missing any packages and if you are you can throw them inside the install_and_run.bat to install.
 Let me know whats missing as well and I'll update the bat for the next person.
 
 
 
-The script will automatically download a suitable RWKV model into the `models`
-folder. If you already have a model, Use the `models` directory and
-place your `.pth` or `.rwkv` files there.
+Use the `models` directory and place your `.pth` or `.rwkv` files there.
 
 
 
 ## TODO
 
-- Tune the model to better match ChatGPT
 - Clean up the code
 - Fix the logs and make a chat mode that will change the formatted input into the model.
-- Add a new chat button and load the previous conversations into the log.
+- Add a new stop button and load the previous conversations into the log. You can't click on them yet but you can check them from your local storage. Sorry I'm trying.
