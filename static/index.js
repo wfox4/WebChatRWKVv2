@@ -23,7 +23,7 @@
             messages[id] = message;
 
             console.log("renderMessage", id, from, message);
-            messages[id] = message;
+            
 
             const div = document.createElement("div");
             div.id = id;
@@ -48,7 +48,8 @@
         let activeLogFilename = null;
 
         const switchActiveLog = (filename) => {
-            // Save the current conversation before switching logs
+            
+			// Save the current conversation before switching logs
             if (activeLogFilename) {
                 const currentConversation = Array.from(historybox.querySelectorAll(".message")).map((messageElement) => {
                     const from = messageElement.querySelector("h4").innerText;
@@ -63,7 +64,7 @@
             }
 
             // Clear the current conversation history
-
+			historybox.innerHTML = "";
 
 
             // Load the conversation history from local storage
@@ -82,9 +83,7 @@
 
         contextbox.addEventListener("input", (event) => {
             const context = contextbox.value.trim();
-            if (context !== "") {
-                sendContext(context);
-            }
+            sendContext(context);
         });
 
         async function sendContext(context) {
@@ -146,6 +145,9 @@
             logItem.appendChild(filenameContainer);
             logItem.appendChild(editButtonContainer);
             logItem.appendChild(deleteButtonContainer);
+			logItem.addEventListener("click", () => {
+			    switchActiveLog(filename);
+			});
 
             editButton.addEventListener("click", () => {
                 const newFilename = prompt("Enter a new name for the log:", filename);
@@ -279,10 +281,21 @@
             }
             // Generate an ID for the response
 
+			const userscontext = await fetch("/currentcontext")
+				.then((response) => response.json())
+				.then(data => data.userscontext)
+				.catch((error) => console.error("Error fetching user context:", error));
+
+
             respid = makeId();
             // Add message to the page
             renderMessage(makeId(), "User", message);
-            renderMessage(respid, "ChatRWKV", "");
+            
+			if (userscontext && typeof userscontext === "string" && userscontext !== "") {
+				renderMessage(makeId(), "Input", userscontext);
+			}
+			
+			renderMessage(respid, "ChatRWKV", "");
 
 
 
@@ -303,9 +316,11 @@
             if (!isReady) return;
             console.log()
             sendMessage(chatbox.value.trim());
-            chatbox.value = "";
-            chatform.focus();
             chatform.reset();
+			setTimeout(() => {
+				chatbox.value = "";
+				chatform.focus();
+			}, 0);
         };
 
         chatform.addEventListener("submit", (e) => {
