@@ -19,7 +19,7 @@ print("Importing modules...")
 
 import asyncio
 import currentcontext
-from fastapi import FastAPI, WebSocket
+from fastapi import FastAPI, WebSocket, BackgroundTasks
 from fastapi.staticfiles import StaticFiles
 import json
 import os
@@ -38,12 +38,21 @@ def save_log(filename, content):
 if not os.path.exists('logs'):
     os.makedirs('logs')
 
+@app.post("/api/stop_model")
+async def stop_model_route(background_tasks: BackgroundTasks):
+    background_tasks.add_task(model.stop_model)
+    print("Stop model endpoint called")
+    return {"status": "Model stopping"}
+
+
 
 @app.websocket("/ws")
 async def websocket_endpoint(websocket: WebSocket):
     await websocket.accept()
     session = {"state": None}
     loop = asyncio.get_running_loop()
+
+
 
     async def reply(id, *, result=None, error=None):
         either = (result is None) is not (error is None)
@@ -85,10 +94,7 @@ async def websocket_endpoint(websocket: WebSocket):
         if "top_p_usual" in message:
             set_top_p_usual(message["top_p_usual"])
 
-        if message.get("action") == "stop_model":
-            stop_model()
-            await websocket.send_text("Model stopped")
-            model.clear_stop_event()
+
 
         method, params, id = (
             message.get("method", None),
