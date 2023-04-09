@@ -63,6 +63,15 @@
                         coherence.
                     </div>
                     <span id="topPValue">0.5</span>
+					<div>
+						<label for="number" id="numberLabel">Token Cap:</label>
+						<br />
+						<input type="range" min="100" max="4096" value="4096" id="number" step="64" oninput="updateNumber(value);" />
+						<div class="tooltip" id="numberTooltip">
+						number: The 'number' variable determines the number of tokens generated in each forward pass of the model. Increasing this value may result in longer response times but more generated content in a single pass. Decreasing the value can make the model generate text faster but may require more iterations to generate the desired amount of content.
+						</div>
+						<span id="numberValue">4096</span>
+					</div>
                 </div>
                 <script>
                     function updateTemp(value) {
@@ -70,7 +79,12 @@
                         tempValue.innerHTML = (value / 100).toFixed(2);
                     }
 
-                    function updateTopP(value) {
+                    function updateNumber(value) {
+						let numberValue = document.getElementById("numberValue");
+						numberValue.innerHTML = Math.round(value / 64) * 64;
+					}
+					
+					function updateTopP(value) {
                         let topPValue = document.getElementById("topPValue");
                         topPValue.innerHTML = (value / 100).toFixed(2);
                     }
@@ -78,9 +92,11 @@
                     function sendData() {
                         let temp = document.getElementById("temp").value / 100;
                         let top_p = document.getElementById("top_p").value / 100;
-                        let data = {
+                        let number = document.getElementById("number").value;
+						let data = {
                             temp: temp,
                             top_p_usual: top_p_usual,
+							number: number,
                         };
 
                         // Assuming your WebSocket object is called 'socket'
@@ -110,6 +126,19 @@
                     topPLabel.addEventListener("mouseout", () => {
                         top_pTooltip.style.display = "none";
                     });
+					const numberLabel = document.getElementById("numberLabel");
+					const numberTooltip = document.getElementById("numberTooltip");
+					
+					numberLabel.addEventListener("mouseover", (event) => {
+						numberTooltip.style.display = "block";
+						numberTooltip.style.left = event.pageX - numberTooltip.clientWidth - 10 + "px";
+						numberTooltip.style.top = event.pageY - numberTooltip.clientHeight / 2 + "px";
+					});
+					
+					numberLabel.addEventListener("mouseout", () => {
+						numberTooltip.style.display = "none";
+					});
+					
                 </script>
             </form>
         </div>
