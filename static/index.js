@@ -2,17 +2,11 @@
     const messages = {};
     let isReady = false;
 
-
-
-
-
-
-
     // Wait until the whole page has loaded
     window.addEventListener("load", () => {
         const conversationLogsElement = document.querySelector("#conversation-logs");
         const chatbox = document.querySelector("#chatbox");
-        const chatform = document.querySelector("#chatform");
+		const chatform = document.querySelector("#chatform");
         const historybox = document.querySelector("#history");
 
         const contextbox = document.getElementById("contextbox");
@@ -329,17 +323,24 @@
         };
 
         const stopModel = () => {
-            // Send a message to the WebSocket to stop the model
-            if (ws.readyState === WebSocket.OPEN) {
-                ws.send(JSON.stringify({
-                    action: "stop_model"
-                }));
-            }
+            fetch("/api/stop_model", {
+				method: "POST",
+			})
+				.then((response) => response.json())
+				.then((data) => {
+					console.log(data); // {"status": "Model stopping"}
+				})
+				.catch((error) => {
+				    console.error("Error:", error);
+				});
+			
         };
 
-        stopButton.addEventListener("click", stopModel);
+        if (stopButton) {
+			stopButton.addEventListener("click", stopModel);
+		}
 
-        window.stopModel = stopModel;
+        
 
     });
 
