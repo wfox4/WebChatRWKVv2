@@ -20,7 +20,10 @@ pip install rwkvstic --force-reinstall
 pip install inquirer uvicorn
 pip install websockets
 pip install psutil requests requests-oauthlib tensorflow scipy
-pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/nightly/cu117
+pip install numpy torch torchvision torchaudio --index-url https://download.pytorch.org/whl/nightly/cu117
+
+set PYTHONPATH=%PYTHONPATH%;%VENV_NAME%\Lib\site-packages\rwkvstic
+
 
 echo Running main.py...
 python main.py || goto Error
