@@ -1,1 +1,1 @@
-userscontext = {"context": ""}
+userscontext = "";
