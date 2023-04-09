@@ -19,12 +19,13 @@ print("Importing modules...")
 
 import asyncio
 import currentcontext
-from fastapi import FastAPI, WebSocket, BackgroundTasks
+from fastapi import FastAPI, WebSocket, BackgroundTasks, Response
 from fastapi.staticfiles import StaticFiles
+from fastapi.responses import JSONResponse
 import json
 import os
 import model
-from model import set_temp, set_top_p_usual, stop_model
+from model import set_temp, set_top_p_usual, stop_model, number
 
 app = FastAPI()
 
@@ -37,6 +38,10 @@ def save_log(filename, content):
 
 if not os.path.exists('logs'):
     os.makedirs('logs')
+
+@app.get("/currentcontext")
+async def get_current_context():
+        return JSONResponse(content={"userscontext": currentcontext.userscontext})
 
 @app.post("/api/stop_model")
 async def stop_model_route(background_tasks: BackgroundTasks):
@@ -94,6 +99,8 @@ async def websocket_endpoint(websocket: WebSocket):
         if "top_p_usual" in message:
             set_top_p_usual(message["top_p_usual"])
 
+        if "number" in message:
+            set_number(int(message["number"]))
 
 
         method, params, id = (
