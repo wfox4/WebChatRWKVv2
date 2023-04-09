@@ -1,3 +1,6 @@
+import os
+os.environ["RWKV_JIT_ON"] = '1'
+os.environ["RWKV_CUDA_ON"] = '1'
 import queue
 import threading
 from threading import Event
@@ -8,8 +11,10 @@ import currentcontext
 import torch
 from rwkvstic.agnostic.backends import TORCH
 from rwkvstic.load import RWKV
+from rwkvstic.rwkvMaster import RWKVMaster
 
-stop_event = Event()
+
+
 
 temp = 0.7
 top_p_usual = 0.5
@@ -31,104 +36,20 @@ def no_tqdm():
     tqdm.__init__ = partialmethod(tqdm.__init__, disable=True)
 
 
-@dataclass
-class OnlineModel:
-    name: str
-    url: str
-    sha256: str
-    vram_gb: int
 
 
-online_models = [
-    # TODO: add more models here
-    OnlineModel(
-        name="RWKV-4-Pile-7B-ctx4096",
-        url="https://huggingface.co/BlinkDL/rwkv-4-pile-7b/resolve/main/RWKV-4-Pile-7B-20230109-ctx4096.pth",
-        sha256="9ea1271b25deb6c72bd29f629147d5013cc7d7c69f9715192f6b6b92fca08f64",
-        vram_gb=14,
-    ),
-    OnlineModel(
-        name="RWKV-4-Pile-3B-ctx4096",
-        url="https://huggingface.co/BlinkDL/rwkv-4-pile-3b/resolve/main/RWKV-4-Pile-3B-20221110-ctx4096.pth",
-        sha256="9500633f23d86fbae3cb3cbe7908b97b971e9561edf583c2c5c60b10b02bcc27",
-        vram_gb=6,
-    ),
-    OnlineModel(
-        name="RWKV-4-Pile-1B5-ctx4096",
-        url="https://huggingface.co/BlinkDL/rwkv-4-pile-1b5/resolve/main/RWKV-4-Pile-1B5-20220929-ctx4096.pth",
-        sha256="6c97043e1bb0867368249290c97a2fe8ffc5ec12ceb1b5251f4ee911f9982c23",
-        vram_gb=3.7,
-    ),
-    OnlineModel(
-        name="RWKV-4-Pile-1B5-Instruct-test2",
-        url="https://huggingface.co/BlinkDL/rwkv-4-pile-1b5/resolve/main/RWKV-4-Pile-1B5-Instruct-test2-20230209.pth",
-        sha256="19aafd001257702bd66c81e5e05dcbc088341e825cc41b4feaeb35aa1b55624c",
-        vram_gb=3.7,
-    ),
-    OnlineModel(
-        name="RWKV-4-Pile-169M",
-        url="https://huggingface.co/BlinkDL/rwkv-4-pile-169m/resolve/main/RWKV-4-Pile-169M-20220807-8023.pth",
-        sha256="713c6f6137a08d3a86ab57df4f09ea03563329beb3bbabc23509d6c57aa0f9e2",
-        vram_gb=1.3,
-    ),
-]
 
 
-def hash_file(filename):
-    import hashlib
-
-    file_hash = hashlib.sha256()
-    with open(filename, "rb") as f:
-        while True:
-            data = f.read(4 * 1024)
-            if not data:
-                break
-            file_hash.update(data)
-    return file_hash.hexdigest()
 
 
-# https://stackoverflow.com/a/63831344
-def download(url, filename, sha256=None):
-    import functools
-    import pathlib
-    import shutil
-    import requests
-    from tqdm.auto import tqdm
-
-    r = requests.get(url, stream=True, allow_redirects=True)
-    if r.status_code != 200:
-        r.raise_for_status()  # Will only raise for 4xx codes, so...
-        raise RuntimeError(f"Request to {url} returned status code {r.status_code}")
-    file_size = int(r.headers.get("Content-Length", 0))
-
-    path = pathlib.Path(filename).expanduser().resolve()
-    path.parent.mkdir(parents=True, exist_ok=True)
-
-    desc = "(Unknown total file size)" if file_size == 0 else ""
-    r.raw.read = functools.partial(
-        r.raw.read, decode_content=True
-    )  # Decompress if needed
-    with tqdm.wrapattr(r.raw, "read", total=file_size, desc=desc) as r_raw:
-        with path.open("wb") as f:
-            shutil.copyfileobj(r_raw, f)
-
-    if sha256 is not None:
-        print("Verifying file integrity...")
-        file_hash = hash_file(path)
-        if file_hash != sha256:
-            print("Error downloading file: checksums do not match")
-            print("Expected", sha256)
-            print("But got ", file_hash)
-            raise Exception("Checksums do not match!")
-
-    return path
 
 def clear_stop_event():
-    stop_event.clear()
+    RWKVMaster.stop_event = False
 
 
 def stop_model():
-    stop_event.set()
+    RWKVMaster.stop_event = True
+    print("Oh Wow")
 
 
 def get_checkpoint():
@@ -163,66 +84,11 @@ For more information, see: https://pytorch.org/get-started/locally/
     if not path.exists(models_dir):
         os.makedirs(models_dir)
 
-# Check if there are any models in the models/ folder
-    models = glob(path.join(models_dir, "*.pth")) + glob(path.join(models_dir, "*.rwkv"))
-
-    if len(models) == 0:
-        print("No *.pth models found in the `models` folder, downloading...")
-        print(" -> RAM:", ram_total)
-        print(" -> VRAM:", vram_total)
-        memtarget = vram_total if has_cuda else ram_total
-        for m in online_models:
-            if m.vram_gb * 1024 * 1024 * 1024 <= memtarget:
-                print("Downloading model", m.name)
-                download(
-                    m.url,
-                    path.join(models_dir, m.name + ".pth"),
-                    sha256=m.sha256,
-                )
-                break
-
-    models = glob(path.join(models_dir, "*.pth")) + glob(path.join(models_dir, "*.rwkv"))
-    if len(models) == 0:
-        raise Exception("Could not find a suitable model to download.")
-
-# Find a valid model file
-    valid_model = None
-    for model_file in models:
-        if os.path.exists(model_file):
-            valid_model = model_file
-            break
-
-    if valid_model is None:
-        raise Exception("No valid model found in the 'models' folder.")
-
-    # TODO: get model name from command line args / config file
-    print("-> Using model", valid_model)
-    return valid_model
-    models_dir = "models"
-    if not path.exists(models_dir):
-        os.makedirs(models_dir)
-
     # Check if there are any models in the models/ folder
     models = glob(path.join(models_dir, "*.pth")) + glob(path.join(models_dir, "*.rwkv"))
 
     if len(models) == 0:
-        print("No *.pth models found in the `models` folder, downloading...")
-        print(" -> RAM:", ram_total)
-        print(" -> VRAM:", vram_total)
-        memtarget = vram_total if has_cuda else ram_total
-        for m in online_models:
-            if m.vram_gb * 1024 * 1024 * 1024 <= memtarget:
-                print("Downloading model", m.name)
-                download(
-                    m.url,
-                    path.join(models_dir, m.name + ".pth"),
-                    sha256=m.sha256,
-                )
-                break
-
-        models = glob(path.join(models_dir, "*.pth")) + glob(path.join(models_dir, "*.rwkv"))
-        if len(models) == 0:
-            raise Exception("Could not find a suitable model to download.")
+        raise Exception("No local models found in the 'models' folder. Please place a model file in the folder and try again.")
 
     # Find a valid model file
     valid_model = None
@@ -240,6 +106,8 @@ For more information, see: https://pytorch.org/get-started/locally/
 
 
 
+
+
 # Load the model (supports full path, relative path, and remote paths)
 model = RWKV(
     get_checkpoint(),
@@ -248,6 +116,8 @@ model = RWKV(
     runtimedtype=torch.float32,
     dtype=torch.bfloat16 if torch.cuda.is_available() else torch.float32,
 )
+
+
 
 # Disable tqdm
 no_tqdm()
@@ -274,6 +144,7 @@ def inferthread():
             # Perform inference
             model.setState(task.state)
             model.loadContext(newctx=task.context)
+            print(f"Model type: {type(model)}")
             res = model.forward(
                 number=4096,
                 temp=temp,
@@ -281,9 +152,10 @@ def inferthread():
                 end_adj=-2,
                 progressLambda=task.progress_callback,
                 **task.forward_kwargs,
-            )
+                )
 
             task.done_callback(res)
+            
         except Exception:
             traceback.print_exc()
         finally:
@@ -295,7 +167,7 @@ def infer(*, context: str, state=None, on_progress=None, on_done=None, forward_k
 
     # args['logits', 'state', 'output', 'progress', 'tokens', 'total', 'current']
     def _progress_callback(args):
-        if on_progress is None or stop_event.is_set():
+        if on_progress is None:
             return
 
         if args is None:
@@ -304,12 +176,12 @@ def infer(*, context: str, state=None, on_progress=None, on_done=None, forward_k
 
         last_token = args["tokens"][-1]
         token_str = model.tokenizer.decode(last_token)
-
+        
         on_progress(token_str, args["state"])
 
     def _done_callback(result):
         ev.set()
-        if on_done is None or stop_event.is_set():
+        if on_done is None:
             return
         on_done(result)
 
@@ -342,14 +214,13 @@ def get_initial_state():
 
 def chat(state, input: str, on_progress, on_done):
     model.resetState()
-    stop_event.clear()
     # Format the input to include context and user input
     input = f"""
-Instruction: {input}
+### Instruction: {input}
 
-Input: {currentcontext.userscontext}
+### Input: {currentcontext.userscontext}
 
-Output: """
+### Output: """
 
     print("Formatted input:", input)
     # Set empty state if not provided
