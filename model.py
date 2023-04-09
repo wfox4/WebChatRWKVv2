@@ -14,7 +14,7 @@ from rwkvstic.load import RWKV
 from rwkvstic.rwkvMaster import RWKVMaster
 
 
-
+number = 4096
 
 temp = 0.7
 top_p_usual = 0.5
@@ -27,6 +27,9 @@ def set_top_p_usual(new_top_p_usual):
     global top_p_usual
     top_p_usual = new_top_p_usual
 
+def set_number(new_number):
+    global number
+    number = new_number
 
 def no_tqdm():
     from functools import partialmethod
@@ -146,7 +149,7 @@ def inferthread():
             model.loadContext(newctx=task.context)
             print(f"Model type: {type(model)}")
             res = model.forward(
-                number=4096,
+                number=number,
                 temp=temp,
                 top_p_usual=top_p_usual,
                 end_adj=-2,
