@@ -13,10 +13,12 @@ YOU WILL HAVE TO CHANGE THE PATH TO YOUR LIB LOCATION
 ## How to use
 
 
-# Download/Clone this repository
+# Download or Clone this repository
 git clone https://github.com/wfox4/WebChatRWKVv2.git
 
-# Download this model and throw it inside of the models folder. 
+# Download a RWKV model and throw it inside of the models folder. 
+Any of the ones from BlinkDL should work, be sure to adjust the settings for your VRAM limitations.
+https://huggingface.co/BlinkDL/rwkv-4-raven/tree/main
 https://huggingface.co/Hazzzardous/rwkv-fastquant/blob/main/ravenV7-14B-2-1-2.rwkv
 
 # Run the install_and_run.bat file from the file location. MAKE SURE you have the model inside the folder first.
