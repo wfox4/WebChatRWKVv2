@@ -27,7 +27,7 @@ https://huggingface.co/Hazzzardous/rwkv-fastquant/blob/main/ravenV7-14B-2-1-2.rw
 
 # Then run the RUN.bat and you should be able to stop the model mid generation if it starts getting crazy.
 
-# Be sure to check the logs and see if you are missing any packages and if you are you can throw them inside the install_and_run.bat to install.
+# Be sure to check the logs and see if you are missing any packages(Note the install_and_run bat should fail because there are missing variable from the custom RWKVmaster.py, So be aware of any errors and understand that you will recieve errors from the install_and_run.bat if you try to use that for the website.) If you are missing any you can modifiy the install_and_run.bat to install them BUT REMEMBER after each install_and_run.bat you have to replace the RWKVmaster to fix the missing variables.
 Let me know whats missing as well and I'll update the bat for the next person.
 
 
