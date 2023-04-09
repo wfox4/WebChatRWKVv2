@@ -23,6 +23,10 @@ https://huggingface.co/Hazzzardous/rwkv-fastquant/blob/main/ravenV7-14B-2-1-2.rw
 
 # Run the install_and_run.bat file from the file location. MAKE SURE you have the model inside the folder first. This should fail with a Null variable.
 
+# Disable Local Cache or else the conversation log will get doubled lol
+
+![screenshot](https://github.com/wfox4/WebChatRWKVv2/blob/main/.github/images/DisableLocalCacheSoTheLogWorks.png)
+
 # Once installed close the console, grab the RKWVmaster.py from the Custom folder and place it INSIDE of your chatbot_env_new/Lib/site-packages/rwkvsticv folder and paste it inside, yes overwrite the file!
 
 # Then run the RUN.bat and BAM you're done. Open a website and go to http://127.0.0.1:8000/
