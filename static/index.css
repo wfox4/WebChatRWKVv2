@@ -126,11 +126,11 @@ body {
 }
 
 .log-delete-btn {
-  background-color: transparent;
+  background-color: #efefef;
   border: none;
   cursor: pointer;
-  width: 12px;
-  height: 12px;
+  width: 20px;
+  height: 20px;
   padding: 0;
 }
 
@@ -139,7 +139,7 @@ body {
   max-width: 100%;
   max-height: 100%;
   display: block;
-  width: 12px;
+  width: 24px;
   height: 12px;
 }
 
@@ -192,6 +192,11 @@ body {
   cursor: pointer;
   outline: none;
 }
+
+.edit-btn-container {
+    position: relative;
+}
+
 
 .btn {
   flex: 2;
