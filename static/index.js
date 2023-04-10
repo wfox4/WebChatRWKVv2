@@ -6,7 +6,7 @@
     window.addEventListener("load", () => {
         const conversationLogsElement = document.querySelector("#conversation-logs");
         const chatbox = document.querySelector("#chatbox");
-		const chatform = document.querySelector("#chatform");
+        const chatform = document.querySelector("#chatform");
         const historybox = document.querySelector("#history");
 
         const contextbox = document.getElementById("contextbox");
@@ -23,7 +23,7 @@
             messages[id] = message;
 
             console.log("renderMessage", id, from, message);
-            
+
 
             const div = document.createElement("div");
             div.id = id;
@@ -47,9 +47,13 @@
         // Add a new variable to keep track of the active log filename
         let activeLogFilename = null;
 
+
         const switchActiveLog = (filename) => {
-            
-			// Save the current conversation before switching logs
+
+            const savedConversationHistory = localStorage.getItem(filename);
+            const conversationHistory = savedConversationHistory ? JSON.parse(savedConversationHistory) : [];
+
+            // Save the current conversation before switching logs
             if (activeLogFilename) {
                 const currentConversation = Array.from(historybox.querySelectorAll(".message")).map((messageElement) => {
                     const from = messageElement.querySelector("h4").innerText;
@@ -64,12 +68,11 @@
             }
 
             // Clear the current conversation history
-			historybox.innerHTML = "";
+            historybox.innerHTML = "";
 
 
             // Load the conversation history from local storage
-            const savedConversationHistory = localStorage.getItem(filename);
-            const conversationHistory = savedConversationHistory ? JSON.parse(savedConversationHistory) : [];
+
 
             conversationHistory.forEach((entry) => {
                 renderMessage(makeId(), entry.from, entry.message);
@@ -145,9 +148,9 @@
             logItem.appendChild(filenameContainer);
             logItem.appendChild(editButtonContainer);
             logItem.appendChild(deleteButtonContainer);
-			logItem.addEventListener("click", () => {
-			    switchActiveLog(filename);
-			});
+            logItem.addEventListener("click", () => {
+                switchActiveLog(filename);
+            });
 
             editButton.addEventListener("click", () => {
                 const newFilename = prompt("Enter a new name for the log:", filename);
@@ -181,19 +184,20 @@
 
         const exampleLogs = loadLogsFromLocalStorage();
 
-        if (exampleLogs.length === 0) {
-            // Add a default conversation log if no logs exist
-            localStorage.setItem("default-log", JSON.stringify([]));
-            exampleLogs.push("default-log");
-        }
+        
+        // Add a default conversation log if no logs exist
+        localStorage.setItem("default-log", JSON.stringify([]));
+        exampleLogs.push("default-log");
 
-        exampleLogs.forEach((log) => {
+
+        exampleLogs.reverse().forEach((log) => {
             const logItem = createConversationLog(log);
             conversationLogsElement.appendChild(logItem);
         });
-
-        activeLogFilename = exampleLogs[0];
-        switchActiveLog(historybox, activeLogFilename);
+		
+		
+        activeLogFilename = "default-log";
+        switchActiveLog(activeLogFilename);
 
         marked.setOptions({
             highlight: function(code, lang) {
@@ -248,7 +252,7 @@
             renderMessage(makeId(), "[system]", "WebSocket disconnected!");
         });
 
-        let isFirstMessage = true;
+
         const saveCurrentConversation = () => {
             // Get the current conversation history
             const currentConversation = Array.from(historybox.querySelectorAll(".message")).map((messageElement) => {
@@ -274,28 +278,23 @@
 
         const sendMessage = async (message) => {
             isReady = false;
-
-            if (isFirstMessage) {
-                saveCurrentConversation();
-                isFirstMessage = false;
-            }
             // Generate an ID for the response
 
-			const userscontext = await fetch("/currentcontext")
-				.then((response) => response.json())
-				.then(data => data.userscontext)
-				.catch((error) => console.error("Error fetching user context:", error));
+            const userscontext = await fetch("/currentcontext")
+                .then((response) => response.json())
+                .then(data => data.userscontext)
+                .catch((error) => console.error("Error fetching user context:", error));
 
 
             respid = makeId();
             // Add message to the page
             renderMessage(makeId(), "User", message);
-            
-			if (userscontext && typeof userscontext === "string" && userscontext !== "") {
-				renderMessage(makeId(), "Input", userscontext);
-			}
-			
-			renderMessage(respid, "ChatRWKV", "");
+
+            if (userscontext && typeof userscontext === "string" && userscontext !== "") {
+                renderMessage(makeId(), "Input", userscontext);
+            }
+
+            renderMessage(respid, "ChatRWKV", "");
 
 
 
@@ -317,10 +316,10 @@
             console.log()
             sendMessage(chatbox.value.trim());
             chatform.reset();
-			setTimeout(() => {
-				chatbox.value = "";
-				chatform.focus();
-			}, 0);
+            setTimeout(() => {
+                chatbox.value = "";
+                chatform.focus();
+            }, 0);
         };
 
         chatform.addEventListener("submit", (e) => {
@@ -339,23 +338,35 @@
 
         const stopModel = () => {
             fetch("/api/stop_model", {
-				method: "POST",
-			})
-				.then((response) => response.json())
-				.then((data) => {
-					console.log(data); // {"status": "Model stopping"}
-				})
-				.catch((error) => {
-				    console.error("Error:", error);
-				});
-			
+                    method: "POST",
+                })
+                .then((response) => response.json())
+                .then((data) => {
+                    console.log(data); // {"status": "Model stopping"}
+                })
+                .catch((error) => {
+                    console.error("Error:", error);
+                });
+
         };
 
         if (stopButton) {
-			stopButton.addEventListener("click", stopModel);
-		}
+            stopButton.addEventListener("click", stopModel);
+        }
 
-        
+        const createNewLogButton = document.createElement("button");
+        createNewLogButton.innerText = "Create New Log";
+        createNewLogButton.style.marginTop = "10px";
+        createNewLogButton.addEventListener("click", () => {
+            // Save the current conversation and create a new log
+            saveCurrentConversation();
+
+            // Switch to the new log
+            const newLogFilename = exampleLogs[exampleLogs.length - 1];
+            switchActiveLog(newLogFilename);
+        });
+        conversationLogsElement.appendChild(createNewLogButton);
+
 
     });
 
