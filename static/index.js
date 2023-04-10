@@ -149,7 +149,9 @@
             logItem.appendChild(editButtonContainer);
             logItem.appendChild(deleteButtonContainer);
             logItem.addEventListener("click", () => {
-                switchActiveLog(filename);
+				if (filename !== activeLogFilename) {
+					switchActiveLog(filename);
+				}
             });
 
             editButton.addEventListener("click", () => {
@@ -162,20 +164,31 @@
             });
 
             deleteButton.addEventListener("click", () => {
-                const confirmDelete = confirm(`Are you sure you want to delete ${filename}?`);
-                if (confirmDelete) {
-                    localStorage.removeItem(filename);
-                    caches.open("conversation-history").then((cache) => {
-                        cache.delete(filename);
-                    });
-                    logItem.remove();
-                    console.log(`Deleting file: ${filename}`);
-                    if (activeLogFilename === filename) {
-                        activeLogFilename = null;
-                        historybox.innerHTML = "";
-                    }
-                }
-            });
+                if (filename === "default-log") {
+					const confirmClear = confirm(`Are you sure you want to clear the default log?`);
+					if (confirmClear) {
+						localStorage.setItem("default-log", JSON.stringify([]));
+						if (activeLogFilename === filename) {
+							historybox.innerHTML = "";
+						}
+					}
+				} else {
+					const confirmDelete = confirm(`Are you sure you want to delete ${filename}?`);
+					if (confirmDelete) {
+						localStorage.removeItem(filename);
+						caches.open("conversation-history").then((cache) => {
+							cache.delete(filename);
+						});
+						logItem.remove();
+						console.log(`Deleting file: ${filename}`);
+						if (activeLogFilename === filename) {
+							activeLogFilename = null;
+							historybox.innerHTML = "";
+						}
+					}
+				
+				}
+			});	
 
             return logItem;
         };
