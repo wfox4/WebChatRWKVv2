@@ -10,9 +10,9 @@ YOU WILL HAVE TO CHANGE THE PATH TO YOUR LIB LOCATION
 
 ![screenshot](https://github.com/wfox4/WebChatRWKVv2/blob/main/.github/images/Screenshot3.png)
 
-## How to use
+# How to use
 
-# Be sure you have cuda toolkit 11.7 and python 3.10.9(If you want to use other versions, you can just know you have to make the adjusts needed to the install bat for the right version of the needed modules for any downgrades or upgraded version)
+## Be sure you have cuda toolkit 11.7 and python 3.10.9(If you want to use other versions, you can just know you have to make the adjusts needed to the install bat for the right version of the needed modules for any downgraded or upgraded versions)
 
 # Download this repository and unzip the files or use
 git clone https://github.com/wfox4/WebChatRWKVv2.git
