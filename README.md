@@ -12,6 +12,7 @@ YOU WILL HAVE TO CHANGE THE PATH TO YOUR LIB LOCATION
 
 ## How to use
 
+# Be sure you have cuda toolkit 11.7 and python 3.10.9(If you want to use other versions, you can just know you have to make the adjusts needed to the install bat for the right version of the needed modules for any downgrades or upgraded version)
 
 # Download this repository and unzip the files or use
 git clone https://github.com/wfox4/WebChatRWKVv2.git
@@ -31,7 +32,7 @@ https://huggingface.co/Hazzzardous/rwkv-fastquant/blob/main/ravenV7-14B-2-1-2.rw
 
 # Then run the RUN.bat and BAM you're done. Open a website and go to http://127.0.0.1:8000/
 
-# Be sure to check the logs and see if you are missing any packages(Note the install_and_run bat should fail because there are missing variable from the custom RWKVmaster.py, So be aware of any errors and understand that you will recieve errors from the install_and_run.bat if you try to use that for the website.) If you are missing any you can modifiy the install_and_run.bat to install them BUT REMEMBER after each install_and_run.bat you have to replace the RWKVmaster to fix the missing variables.
+# Be sure to check the logs and see if you are missing any packages(Note the install_and_run bat should fail because there is a missing variable that is in the custom RWKVmaster.py, So be aware of any errors and understand that you will recieve errors from the install_and_run.bat if you try to use that for the website.) If you are missing any you can modifiy the install_and_run.bat to install them BUT REMEMBER after each install_and_run.bat you have to replace the RWKVmaster to fix the missing variables.
 Let me know whats missing as well and I'll update the bat for the next person.
 
 
