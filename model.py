@@ -1,6 +1,6 @@
 import os
 os.environ["RWKV_JIT_ON"] = '1'
-os.environ["RWKV_CUDA_ON"] = '1'
+os.environ["RWKV_CUDA_ON"] = '0'
 import queue
 import threading
 from threading import Event
@@ -9,7 +9,11 @@ from dataclasses import dataclass, field
 from typing import Any, Callable
 import currentcontext
 import torch
-from rwkvstic.agnostic.backends import TORCH
+torch.backends.cudnn.benchmark = True
+torch.backends.cudnn.allow_tf32 = True
+torch.backends.cuda.matmul.allow_tf32 = True
+
+
 from rwkvstic.load import RWKV
 from rwkvstic.rwkvMaster import RWKVMaster
 
@@ -106,17 +110,19 @@ For more information, see: https://pytorch.org/get-started/locally/
     print("-> Using model", valid_model)
     return valid_model
 
-
+# strategy = 'cpu fp32'
+# strategy = 'cuda:0 fp16 -> cuda:1 fp16'
+# strategy = 'cuda fp16i8 *10 -> cuda fp16'
+# strategy = 'cuda fp16i8'
+# strategy = 'cuda fp16i8 -> cpu fp32 *10'
+# strategy = 'cuda fp16i8 *10+'
 
 
 
 # Load the model (supports full path, relative path, and remote paths)
 model = RWKV(
     get_checkpoint(),
-    mode=TORCH,
-    useGPU=torch.cuda.is_available(),
-    runtimedtype=torch.float32,
-    dtype=torch.bfloat16 if torch.cuda.is_available() else torch.float32,
+    strategy= 'cuda fp16'
 )
 
 
