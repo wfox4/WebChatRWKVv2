@@ -1,4 +1,4 @@
-# WebChatRWKVv2(Fixed)
+# WebChatRWKVv2(Fixed, Strategy Fixed)
 
 ![screenshot](https://github.com/wfox4/WebChatRWKVv2/blob/main/.github/images/screenshot7.png)
 
