@@ -9,9 +9,9 @@ import time
 
 
 
+
 class RWKVMaster():
     stop_event = False
-
     def __init__(self, model, emptyState, initTensor=lambda x: x, intTensor=lambda x: x, sampler=None, tokPath=None):
         self.model = model
 
@@ -28,11 +28,11 @@ class RWKVMaster():
         ostate = self.myState if state is None else state
         tolens = []
         for i in range(number):
+            logits, ostate = self.model.forward(
+                self.intTensor(self.lastToken), ostate)
             if RWKVMaster.stop_event:
                 RWKVMaster.stop_event = False
                 break
-            logits, ostate = self.model.forward(
-                self.intTensor(self.lastToken), ostate)
             try:
                 logits[0] += (end_adj)
             except:
