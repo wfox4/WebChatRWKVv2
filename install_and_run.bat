@@ -17,6 +17,7 @@ pip install tqdm
 pip install rwkv 
 pip install transformers
 pip install rwkvstic 
+pip install prompt_toolkit
 pip install inquirer uvicorn
 pip install websockets
 pip install psutil requests requests-oauthlib tensorflow scipy
