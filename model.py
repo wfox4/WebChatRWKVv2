@@ -57,7 +57,6 @@ def stop_model():
 
 def get_checkpoint():
     import psutil
-    import os
     from glob import glob
     from os import path
 
