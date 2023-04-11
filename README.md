@@ -12,14 +12,12 @@ YOU WILL HAVE TO CHANGE THE PATH TO YOUR LIB LOCATION
 
 # How to use
 
-## Be sure you have cuda toolkit 11.7 and python 3.10.9(If you want to use other versions, you can just know you have to make the adjusts needed to the install bat for the right version of the needed modules for any downgraded or upgraded versions)
+## Be sure you have cuda toolkit 11.7 and python 3.10.9. You might also need a C++ Vistual Studio Toolkit. Be sure to check your logs for any errors you might see. ChatGPT4 can help you resolve any issues. (If you want to use other versions, you can just know you have to make the adjusts needed to the install bat for the right version of the needed modules for any downgraded or upgraded versions)
 
 # Download this repository and unzip the files or use
 git clone https://github.com/wfox4/WebChatRWKVv2.git
 
 # Download a RWKV model and throw it inside of the models folder. 
-
-https://huggingface.co/Hazzzardous/rwkv-fastquant/blob/main/ravenV8-14B-3-0-0.rwkv This is the 14B model you can run with ease with 16GB of VRAM.
 
 Any of the ones from BlinkDL should also work, be sure to adjust the settings for your VRAM limitations.
 https://huggingface.co/BlinkDL/rwkv-4-raven/tree/main
@@ -46,5 +44,4 @@ Use the `models` directory and place your `.pth` or `.rwkv` files there.
 
 ## TODO
 
-- Clean up the code
 - Add a chat mode that has memory
