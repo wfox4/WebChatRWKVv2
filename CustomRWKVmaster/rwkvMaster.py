@@ -1,4 +1,4 @@
-
+import copy
 import tqdm
 import rwkvstic.tokenizer as tokenizer
 from typing import List
@@ -17,8 +17,14 @@ class RWKVMaster():
 
         self.tokenizer = tokenizer.tokenizer(tokPath)
 
-        self.emptyState = emptyState.clone()
-        self.myState = emptyState.clone()
+        if emptyState is not None:
+            self.emptyState = emptyState.clone()
+            self.myState = emptyState.clone()
+        else:
+            self.emptyState = None
+            self.myState = None
+            
+        
         self.lastToken = [187]
         self.initTensor = initTensor
         self.intTensor = intTensor
@@ -70,7 +76,10 @@ class RWKVMaster():
                 print(len(newctx)/ll * 100, "%", "remaining")
                 m = newctx[:btch]
                 newctx = newctx[btch:]
-                o = model.forward(m, o[1].clone())
+                if o[1] is not None:
+                    o = model.forward(m, copy.deepcopy(o[1]))
+                else:
+                    o = model.forward(m, None)
                 progressCallBack(m)
                 
 
@@ -116,12 +125,12 @@ class RWKVMaster():
         return self.tokenizer.encode(x)
 
     def setState(self, state):
-        self.myState = state[0].clone()
+        self.myState = copy.deepcopy(state[0])
         self.lastToken = state[1]
 
     def getState(self):
-        return self.myState.clone(), self.lastToken
+        return copy.deepcopy(self.myState), self.lastToken
 
     def resetState(self):
-        self.myState = self.emptyState.clone()
+        self.myState = copy.deepcopy(self.emptyState)
         self.lastToken = [187]
