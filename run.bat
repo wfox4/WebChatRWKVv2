@@ -1,5 +1,5 @@
 @echo off
-set "VENV_NAME=chatbot_env_new"
+set "VENV_NAME=venv"
 set LIB=%LIB%;C:\Users\thewh\AppData\Local\Programs\Python\Python310\libs
 
 echo Setting up the virtual environment...
