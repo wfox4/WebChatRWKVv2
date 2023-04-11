@@ -1,5 +1,5 @@
 @echo off
-set "VENV_NAME=chatbot_env_new"
+set "VENV_NAME=venv"
 set LIB=%LIB%;C:\Users\thewh\AppData\Local\Programs\Python\Python310\libs
 
 echo Setting up the virtual environment...
@@ -12,11 +12,11 @@ if not exist "%VENV_NAME%\Scripts" (
 echo Activating virtual environment...
 call %VENV_NAME%\Scripts\activate
 echo Installing requirements...
-venv\Scripts\pip install -r requirements.txt || goto Error
 pip install fastapi
-pip install rwkv
+pip install tqdm
+pip install rwkv 
 pip install transformers
-pip install rwkvstic --force-reinstall
+pip install rwkvstic 
 pip install inquirer uvicorn
 pip install websockets
 pip install psutil requests requests-oauthlib tensorflow scipy
