@@ -31,7 +31,7 @@ Overall, Apple's Q2 2020 performance was relatively strong given the global econ
 
 ---
 
-### Instruction: How was the performance of Apple Inc. during the second quarter of 2020?
+### Instruction: Create a solution that uses AI to improve customer service.
 
 ### Input: 
 
