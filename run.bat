@@ -4,14 +4,16 @@ set "PYTHON_PATH=C:\Users\thewh\AppData\Local\Programs\Python\Python310\python.e
 set LIB=%LIB%;C:\Users\thewh\AppData\Local\Programs\Python\Python310\libs
 
 echo Setting up the virtual environment...
-python -m venv venv || goto Error
-
 if not exist "%VENV_NAME%\Scripts" (
     echo Creating virtual environment...
-    python -m venv %VENV_NAME%
+    "%PYTHON_PATH%" -m venv %VENV_NAME%
 )
+
 echo Activating virtual environment...
 call %VENV_NAME%\Scripts\activate
+
+REM Update PATH variable to include virtual environment executables
+set PATH=%VENV_NAME%\Scripts;%PATH%
 
 set PYTHONPATH=%PYTHONPATH%;%VENV_NAME%\Lib\site-packages\rwkvstic
 
