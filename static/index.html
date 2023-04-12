@@ -66,7 +66,7 @@
 					<div>
 						<label for="number" id="numberLabel">Token Cap:</label>
 						<br />
-						<input type="range" min="100" max="4096" value="4096" id="number" step="64" oninput="updateNumber(value);" />
+						<input type="range" min="100" max="8192" value="4096" id="number" step="64" oninput="updateNumber(value);" />
 						<div class="tooltip" id="numberTooltip">
 						number: The 'number' variable determines the number of tokens generated in each forward pass of the model. Increasing this value may result in longer response times but more generated content in a single pass. Decreasing the value can make the model generate text faster but may require more iterations to generate the desired amount of content.
 						</div>
