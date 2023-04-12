@@ -4,14 +4,18 @@ set "PYTHON_PATH=C:\Users\thewh\AppData\Local\Programs\Python\Python310\python.e
 set LIB=%LIB%;C:\Users\thewh\AppData\Local\Programs\Python\Python310\libs
 
 echo Setting up the virtual environment...
-python -m venv venv || goto Error
+"%PYTHON_PATH%" -m venv venv || goto Error
 
 if not exist "%VENV_NAME%\Scripts" (
     echo Creating virtual environment...
-    python -m venv %VENV_NAME%
+    "%PYTHON_PATH%" -m venv %VENV_NAME%
 )
 echo Activating virtual environment...
 call %VENV_NAME%\Scripts\activate
+
+REM Update PATH variable to include virtual environment executables
+set PATH=%VENV_NAME%\Scripts;%PATH%
+
 echo Installing requirements...
 pip install fastapi
 pip install tqdm
@@ -25,7 +29,6 @@ pip install psutil requests requests-oauthlib tensorflow scipy
 pip install numpy torch torchvision torchaudio --index-url https://download.pytorch.org/whl/nightly/cu117
 
 set PYTHONPATH=%PYTHONPATH%;%VENV_NAME%\Lib\site-packages\rwkvstic
-
 
 echo Running main.py...
 python main.py || goto Error
