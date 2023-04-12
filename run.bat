@@ -1,5 +1,6 @@
 @echo off
 set "VENV_NAME=venv"
+set "PYTHON_PATH=C:\Users\thewh\AppData\Local\Programs\Python\Python310\python.exe"
 set LIB=%LIB%;C:\Users\thewh\AppData\Local\Programs\Python\Python310\libs
 
 echo Setting up the virtual environment...
