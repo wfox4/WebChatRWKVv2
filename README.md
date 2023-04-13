@@ -36,7 +36,7 @@ https://huggingface.co/BlinkDL/rwkv-4-raven/tree/main
 # Be sure to check the logs and see if you are missing any packages(Note the install_and_run bat should fail because there is a missing variable that is in the custom RWKVmaster.py, So be aware of any errors and understand that you will recieve errors from the install_and_run.bat if you try to use that for the website.) If you are missing any you can modifiy the install_and_run.bat to install them BUT REMEMBER after each install_and_run.bat you have to replace the RWKVmaster to fix the missing variables.
 Let me know whats missing as well and I'll update the bat for the next person.
 
-# If you're finding the answers not suited for your needs, adjusting the prompt.txt can make huge differences for the outputs you're looking for.
+# If you're finding the answers not suited for your needs, adjusting the prompt.txt can make huge differences for the outputs you're looking for. I found that Temp=0.5 Top_p=0.5 works really well with v9.
 
 Use the `models` directory and place your `.pth` or `.rwkv` files there.
 
