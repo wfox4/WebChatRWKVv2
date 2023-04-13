@@ -6,9 +6,9 @@
 [rwkvstic](https://github.com/harrisonvanderbyl/rwkvstic), with a ChatGPT-like
 web UI, including real-time response streaming.
 
-YOU WILL HAVE TO CHANGE THE PATHs TO YOUR LIB LOCATION IN BOTH THE INSTALL BAT AND RUN BAT FILES
+YOU WILL HAVE TO CHANGE THE PATH TO "YOUR" LIB & PYTHON.EXE LOCATION IN BOTH THE INSTALL BAT AND RUN BAT FILES
 
-![screenshot](https://github.com/wfox4/WebChatRWKVv2/blob/main/.github/images/Screenshot3.png)
+![screenshot](https://github.com/wfox4/WebChatRWKVv2/blob/main/.github/images/screenshot8.png)
 
 # How to use
 
