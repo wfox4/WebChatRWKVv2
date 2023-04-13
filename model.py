@@ -122,7 +122,7 @@ For more information, see: https://pytorch.org/get-started/locally/
 # Load the model (supports full path, relative path, and remote paths)
 model = RWKV(
     get_checkpoint(),
-    strategy= 'cuda fp16'
+    strategy= 'cuda fp16i8'
 )
 
 
@@ -185,6 +185,9 @@ def infer(*, context: str, state=None, on_progress=None, on_done=None, forward_k
         last_token = args["tokens"][-1]
         token_str = model.tokenizer.decode(last_token)
         
+        if token_str == "<|endoftext|>":
+            token_str = ""
+        
         on_progress(token_str, args["state"])
 
     def _done_callback(result):
@@ -223,12 +226,25 @@ def get_initial_state():
 def chat(state, input: str, on_progress, on_done):
     model.resetState()
     # Format the input to include context and user input
-    input = f"""
-### Instruction: {input}
+    if currentcontext.userscontext == "": 
+        input = f"""Below is an instruction that describes a task. Write a response that appropriately completes the request. End your response with <|endoftext|>.
+# Instruction:
+{input}
 
-### Input: {currentcontext.userscontext}
+# Response:
+"""
 
-### Output: """
+    else:
+        input = f""""Below is an instruction that describes a task, paired with an input that provides further context. Write a response that appropriately completes the request. End your response with <|endoftext|>.
+
+# Instruction:
+{input}
+
+# Input:
+{currentcontext.userscontext}
+
+# Response:
+"""
 
     print("Formatted input:", input)
     # Set empty state if not provided
