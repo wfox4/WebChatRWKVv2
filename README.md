@@ -46,3 +46,6 @@ Let me know whats missing as well and I'll update the bat for the next person.
 
 Use the `models` directory and place your `.pth` or `.rwkv` files there.
 
+
+
+If you want to find me, you can over at Twitter: @WoodnBarrelGame
