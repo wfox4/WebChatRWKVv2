@@ -12,7 +12,22 @@ import time
 
 class RWKVMaster():
     stop_event = False
-    def __init__(self, model, emptyState, initTensor=lambda x: x, intTensor=lambda x: x, sampler=None, tokPath=None):
+    def sample_logits_typical(self, logits, temp=1.0, tau=0.95, **kwargs):
+        probs = F.softmax(logits.float(), dim=-1)
+        logits = -torch.log(probs)
+        ent = torch.nansum(logits * probs, dim=-1, keepdim=True)
+        shifted_logits = torch.abs(logits - ent)
+        sorted_ids = torch.argsort(shifted_logits)
+        sorted_logits = shifted_logits[sorted_ids]
+        sorted_probs = probs[sorted_ids]
+        cumulative_probs = torch.cumsum(sorted_probs, dim=-1).cpu().numpy()
+        cutoff = np.sum(cumulative_probs < tau)
+        probs[shifted_logits > sorted_logits[cutoff]] = 0
+        if temp != 1.0:
+            probs = probs ** (1.0 / temp)
+        out = torch.multinomial(probs, num_samples=1)[0]
+        return int(out)
+    def __init__(self, model, emptyState, initTensor=lambda x: x, intTensor=lambda x: x, sampler=sample_logits_typical, tokPath=None):
         self.model = model
 
         self.tokenizer = tokenizer.tokenizer(tokPath)
@@ -117,6 +132,8 @@ class RWKVMaster():
 
     def sample(self, ozut, temp: float = 1.0, top_p_usual: float = 0.8) -> int:
         return self.sampler(ozut, temp, top_p_usual)
+
+
 
     def decode(self, x):
         return self.tokenizer.decode(x)
