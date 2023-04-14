@@ -47,6 +47,13 @@
                     p.innerText = text;
                     messages[id] = p.innerText;
                 }
+				
+                if (text.endsWith("\n") || text.endsWith("\n\n")) {
+                    text = text.replace(/\n+$/, '');
+                    p.innerText = text;
+                    messages[id] = p.innerText;
+                }
+				
             }
         };
 
@@ -77,7 +84,7 @@
             div.appendChild(tname);
 
             const txt = document.createElement("div");
-            txt.innerHTML = marked.parse(message);
+            txt.innerHTML = '<pre>' + message + '</pre>';
             txt.className = "messagecontent";
             div.appendChild(txt);
 
@@ -277,7 +284,7 @@
             // Append to the p
             const p = document.querySelector("#" + id + " > .messagecontent");
             if (p !== null) {
-                p.innerHTML = marked.parse(markdown);
+                p.innerHTML = '<pre>' + markdown + '</pre>';
 
 
                 // Scroll the history box
