@@ -144,7 +144,7 @@ async def websocket_endpoint(websocket: WebSocket):
         if message.get("action") == "update_context":
             new_context = message.get("context", None)
             if new_context is not None:
-                currentcontext.userscontext = new_context.strip()
+                currentcontext.userscontext = new_context
             continue
 
         if method == "chat":
