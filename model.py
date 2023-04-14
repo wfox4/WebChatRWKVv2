@@ -187,7 +187,28 @@ def infer(*, context: str, state=None, on_progress=None, on_done=None, forward_k
         
         if token_str in ["Bob:", "Bob: ", "Alice: "]:
             token_str = ""
-        
+
+        # Retry mechanism
+        if token_str is None:
+            retry_count = 0
+            while retry_count < 10:
+                args = model.forward(
+                    number=number,
+                    temp=temp,
+                    top_p_usual=top_p_usual,
+                    end_adj=-2,
+                    progressLambda=task.progress_callback,
+                    **task.forward_kwargs,
+                )
+
+                last_token = args["tokens"][-1]
+                token_str = model.tokenizer.decode(last_token)
+
+                if token_str is not None:
+                    break  # Exit the retry loop if token is not None
+
+                retry_count += 1  # Increment retry counter
+
         on_progress(token_str, args["state"])
 
     def _done_callback(result):
@@ -205,6 +226,7 @@ def infer(*, context: str, state=None, on_progress=None, on_done=None, forward_k
     )
     inferqueue.put(task)
     ev.wait()
+
 
 
 def load_context():
@@ -245,7 +267,7 @@ Bob: {input}
 
 Alice:"""
         else:
-            input = f"{currentcontext.userscontext}\n\nBob: {input}\n\nAlice:"
+            input = f"{currentcontext.userscontext}\nBob: {input}\n\nAlice:"
     else:
         if currentcontext.userscontext == "":
             input = f"""Below is an instruction that describes a task. Write a response that appropriately completes the request.
