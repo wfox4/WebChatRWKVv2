@@ -10,6 +10,10 @@ YOU WILL HAVE TO CHANGE THE PATH TO "YOUR" LIB & PYTHON.EXE LOCATION IN BOTH THE
 
 ![screenshot](https://github.com/wfox4/WebChatRWKVv2/blob/main/.github/images/screenshot8.png)
 
+![screenshot](https://github.com/wfox4/WebChatRWKVv2/blob/main/.github/images/screenshot12.png)
+
+https://github.com/BlinkDL/ChatRWKV/blob/main/ChatRWKV-strategy.png
+
 # How to use
 
 ## Be sure you have cuda toolkit 11.7 and python 3.10.9. You might also need a C++ Vistual Studio Toolkit. Be sure to check your logs for any errors you might see. ChatGPT4 can help you resolve any issues. (If you want to use other versions, you can just know you have to make the adjusts needed to the install bat for the right version of the needed modules for any downgraded or upgraded versions)
