@@ -17,7 +17,7 @@ torch.backends.cuda.matmul.allow_tf32 = True
 from rwkvstic.load import RWKV
 from rwkvstic.rwkvMaster import RWKVMaster
 
-
+chatmode = True
 number = 4096
 
 temp = 0.7
@@ -185,7 +185,7 @@ def infer(*, context: str, state=None, on_progress=None, on_done=None, forward_k
         last_token = args["tokens"][-1]
         token_str = model.tokenizer.decode(last_token)
         
-        if token_str == "<|endoftext|>":
+        if token_str in ["Bob:", "Bob: ", "Alice: "]:
             token_str = ""
         
         on_progress(token_str, args["state"])
@@ -207,15 +207,27 @@ def infer(*, context: str, state=None, on_progress=None, on_done=None, forward_k
     ev.wait()
 
 
-print("Loading context")
-chat_initial_context = open("prompt.txt", encoding="utf-8").read().strip()
-model.loadContext(
-    newctx=chat_initial_context,
-    progressCallBack=lambda p: print(model.tokenizer.decode(p[-1]), end=""),
-)
-chat_initial_state = model.getState()
-model.resetState()
-print("Chat context loaded")
+def load_context():
+    global chatmode
+
+    print("Loading context")
+    chatmode_initial_context = "I am Alice, you are Bob, and we know each other."
+    instructmode_initial_context = "You're an Assistant who provides verbose and detailed responses for any task."
+
+    initial_context = chatmode_initial_context if chatmode else instructmode_initial_context
+    print(initial_context)
+    model.loadContext(
+        newctx=initial_context,
+        progressCallBack=lambda p: print(model.tokenizer.decode(p[-1]), end=""),
+    )
+
+    initial_state = model.getState()
+    model.resetState()
+    print("Context loaded")
+
+    return initial_state
+
+chat_initial_state = load_context()
 
 t = threading.Thread(target=inferthread, daemon=True)
 t.start()
@@ -226,22 +238,28 @@ def get_initial_state():
 def chat(state, input: str, on_progress, on_done):
     model.resetState()
     # Format the input to include context and user input
-    if currentcontext.userscontext == "": 
-        input = f"""Below is an instruction that describes a task. Write a response that appropriately completes the request. End your response with <|endoftext|>.
-# Instruction:
-{input}
+    if chatmode:  # Check if global chatmode is True
+        if currentcontext.userscontext == "":
+            input = f"""
+Bob: {input}
+
+Alice:"""
+        else:
+            input = f"{currentcontext.userscontext}\n\nBob: {input}\n\nAlice:"
+    else:
+        if currentcontext.userscontext == "":
+            input = f"""Below is an instruction that describes a task. Write a response that appropriately completes the request.
+
+# Instruction: {input}
 
 # Response:
 """
+        else:
+            input = f"""Below is an instruction that describes a task, paired with an input that provides further context. Write a response that appropriately completes the request.
 
-    else:
-        input = f""""Below is an instruction that describes a task, paired with an input that provides further context. Write a response that appropriately completes the request. End your response with <|endoftext|>.
+# Instruction: {input}
 
-# Instruction:
-{input}
-
-# Input:
-{currentcontext.userscontext}
+# Input: {currentcontext.userscontext}
 
 # Response:
 """
@@ -309,6 +327,10 @@ def chat(state, input: str, on_progress, on_done):
                 "---",
                 "Question:",
                 "Full Answer in Markdown:",
+                "Bob:",
+                "Bob: ",
+                "# Response:",
+                "# Response: ",
             ]
         },
     )
