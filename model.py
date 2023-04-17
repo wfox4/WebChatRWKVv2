@@ -233,7 +233,7 @@ def load_context():
     global chatmode
 
     print("Loading context")
-    chatmode_initial_context = "I am Alice, you are Bob, and we know each other."
+    chatmode_initial_context = "The following is a coherent verbose detailed conversation between Bob and an AI girl named Alice."
     instructmode_initial_context = "You're an Assistant who provides verbose and detailed responses for any task."
 
     initial_context = chatmode_initial_context if chatmode else instructmode_initial_context
