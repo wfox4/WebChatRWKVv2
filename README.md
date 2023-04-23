@@ -1,4 +1,5 @@
-# WebChatRWKVv2(Fixed, Strategy Fixed, Chat mode added)
+# WebChatRWKVv2(Outdated)
+I've started working on something else from the ground up. You can still use this if you want but there are much better options now.
 
 ![screenshot](https://github.com/wfox4/WebChatRWKVv2/blob/main/.github/images/screenshot11.png)
 
